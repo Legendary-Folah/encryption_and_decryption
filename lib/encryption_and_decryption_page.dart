@@ -16,6 +16,13 @@ class _EncryptionAndDecryptionState extends State<EncryptionAndDecryption> {
       TextEditingController();
   String encryptedText = '';
   String decryptedText = '';
+  bool isObscure = false;
+
+  void isObscureText() {
+    setState(() {
+      isObscure = !isObscure;
+    });
+  }
 
 //
   void encryptText() {
@@ -66,30 +73,38 @@ class _EncryptionAndDecryptionState extends State<EncryptionAndDecryption> {
             child: Column(
               spacing: 20,
               children: [
+                // Input Plain Text
                 CustomTextField(
                   textController: _textController,
                   obscureText: false,
                   hintText: 'Enter plain text',
                 ),
+
+                // Input secret key which is set to obscure Text and onCLick of the suffixIcon,
+                // One can see the secretKey if needed.
                 CustomTextField(
                   textController: _keyController,
-                  obscureText: true,
+                  obscureText: isObscure ? false : true,
+                  suffixIcon: isObscure
+                      ? IconButton(
+                          onPressed: isObscureText,
+                          icon: Icon(Icons.visibility_off))
+                      : IconButton(
+                          onPressed: isObscureText,
+                          icon: Icon(Icons.visibility)),
                   hintText: 'Enter secret key',
-                  // suffixIcon: IconButton(
-                  //   onPressed: () {},
-                  //   icon: Icon(
-                  //     Icons.remove_red_eye,
-                  //   ),
-                  // ),
                 ),
+
+                // Click on button to Encrypt the plainText
                 CustomButton(
                   onPressed: encryptText,
                   text: 'Encrypt',
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  spacing: 6,
+                  spacing: 8,
                   children: [
+                    // Get encrypted text which is selectable and can be copied
                     Text('Encrypted Text:',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     SelectableText(encryptedText,
@@ -97,11 +112,15 @@ class _EncryptionAndDecryptionState extends State<EncryptionAndDecryption> {
                   ],
                 ),
                 Divider(),
+
+                // Input encrypted text which can be copied and pasted here
                 CustomTextField(
                   textController: _encryptedTextController,
                   obscureText: false,
                   hintText: 'Enter Encrypted Text',
                 ),
+
+                // Decrypt the encrypted text
                 CustomButton(
                   onPressed: decryptText,
                   text: 'Decrypt Text',
@@ -110,6 +129,7 @@ class _EncryptionAndDecryptionState extends State<EncryptionAndDecryption> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   spacing: 6,
                   children: [
+                    // The decrypted text which shows the plain text that was encrypted
                     Text('Decrypted Text:',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     SelectableText(decryptedText,
@@ -126,13 +146,13 @@ class _EncryptionAndDecryptionState extends State<EncryptionAndDecryption> {
 }
 
 class CustomTextField extends StatelessWidget {
-  const CustomTextField({
-    super.key,
-    required TextEditingController textController,
-    required this.obscureText,
-    required this.hintText,
-    this.suffixIcon,
-  }) : _textController = textController;
+  const CustomTextField(
+      {super.key,
+      required TextEditingController textController,
+      required this.obscureText,
+      required this.hintText,
+      this.suffixIcon})
+      : _textController = textController;
 
   final TextEditingController _textController;
   final bool obscureText;
@@ -141,23 +161,29 @@ class CustomTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.blue, width: 1),
-      ),
-      child: TextField(
-        obscureText: obscureText,
-        controller: _textController,
-        decoration: InputDecoration(
-            suffixIcon: suffixIcon,
-            hintText: hintText,
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.symmetric(horizontal: 8)
-            // contentPadding: EdgeInsets.symmetric(horizontal: 2),
+    final width = MediaQuery.of(context).size.width;
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 50,
+            width: width,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              border: Border.all(color: Colors.blue, width: 1),
             ),
-      ),
+            child: TextField(
+              obscureText: obscureText,
+              controller: _textController,
+              decoration: InputDecoration(
+                suffixIcon: suffixIcon,
+                hintText: hintText,
+                border: InputBorder.none,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
